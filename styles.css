@@ -1,0 +1,38 @@
+body{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+}
+h3{
+    margin: 0;
+    padding: 0;
+    align-self: center;
+}
+canvas{
+    width: 600px;
+    height: 600px;
+}
+.sidebar{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 20vw;
+    padding: 20px;
+}
+.horizontalbox{
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.draw-button{
+    width: 40%;
+}
+.objectPreview{
+    align-self: flex-start;
+}
+.pointPreview{
+    margin-left: 50px;
+}
