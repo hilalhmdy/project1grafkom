@@ -1,5 +1,5 @@
 //States
-var objects = [
+const objects = [
   {
     type: 'Polygon',
     name: 'Nameless polygon',
@@ -11,10 +11,10 @@ var objects = [
     ],
   },
 ];
-var chosen = {}; //Yang akan ditampilkan di rightbar properties
-var drawMethod = '';
-var objectIdx = -1;
-var verticeIdx = -1;
+const chosen = {}; //Yang akan ditampilkan di rightbar properties
+let drawMethod = '';
+let objectIdx = -1;
+let verticeIdx = -1;
 
 const vSource = `
   attribute vec4 vPosition;
@@ -50,9 +50,9 @@ const refreshObjectsList = () => {
 refreshObjectsList();
 
 //Canvas Purposes
-var canvas = document.getElementById('gl-canvas');
+const canvas = document.getElementById('gl-canvas');
 
-var gl = WebGLUtils.setupWebGL(canvas);
+const gl = WebGLUtils.setupWebGL(canvas);
 if (!gl) {
   alert("WebGL isn't available");
 }
@@ -81,13 +81,13 @@ gl.viewport(0, 0, canvas.width, canvas.height);
 gl.clearColor(0.8, 0.8, 0.8, 1.0);
 
 //  Load shaders and initialize attribute buffers
-var program = initShaders(gl, vSource, fSource);
+const program = initShaders(gl, vSource, fSource);
 gl.useProgram(program);
 
 // Associate out shader variables with our data buffer
-var vBuffer = gl.createBuffer();
+const vBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-var vPosition = gl.getAttribLocation(program, 'vPosition');
+const vPosition = gl.getAttribLocation(program, 'vPosition');
 gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
 gl.enableVertexAttribArray(vPosition);
 
@@ -95,9 +95,9 @@ render();
 
 function render() {
   gl.clear(gl.COLOR_BUFFER_BIT);
-  for (var i = 0; i < objects.length; i++) {
-    var vertices = [];
-    for (var j = 0; j < objects[i].vertices.length; j++) {
+  for (let i = 0; i < objects.length; i++) {
+    const vertices = [];
+    for (let j = 0; j < objects[i].vertices.length; j++) {
       vertices.push(objects[i].vertices[j].coor);
     }
     gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);

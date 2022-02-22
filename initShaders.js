@@ -6,13 +6,13 @@ function initShaders(gl, vertexSource, fragmentSource) {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexSource);
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
 
-  var program = gl.createProgram();
+  const program = gl.createProgram();
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    var msg =
+    const msg =
       'Shader program failed to link.  The error log is:' +
       '<pre>' +
       gl.getProgramInfoLog(program) +
