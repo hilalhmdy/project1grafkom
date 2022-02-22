@@ -36,6 +36,8 @@ const fSource = `
   }
 `;
 
+function main() {}
+
 //Leftbar
 const refreshObjectsList = () => {
   var inner = '<h3>Daftar Objek</h3>';
@@ -57,16 +59,21 @@ if (!gl) {
   alert("WebGL isn't available");
 }
 
+const getCoord = (canvas, e) => {
+  const x = (2 * (e.clientX - canvas.offsetLeft)) / canvas.clientWidth - 1;
+  const y = 1 - (2 * (e.clientY - canvas.offsetTop)) / canvas.clientHeight;
+  return { x, y };
+};
+
 const mouseMoveListener = (e) => {
   if (objectIdx < 0 || verticeIdx < 0) return;
-  var x = (2 * (e.clientX - canvas.offsetLeft)) / canvas.clientWidth - 1;
-  var y = 1 - (2 * (e.clientY - canvas.offsetTop)) / canvas.clientHeight;
+  const { x, y } = getCoord(canvas, e);
   objects[objectIdx].vertices[verticeIdx].coor = vec2(x, y);
 };
+
 canvas.addEventListener('mousedown', (e) => {
   if (objectIdx < 0 || verticeIdx < 0) return;
-  var x = (2 * (e.clientX - canvas.offsetLeft)) / canvas.clientWidth - 1;
-  var y = 1 - (2 * (e.clientY - canvas.offsetTop)) / canvas.clientHeight;
+  const { x, y } = getCoord(canvas, e);
   objects[objectIdx].vertices.push({ type: 'Point', name: 'Nameless Point', coor: vec2(x, y) });
   verticeIdx++;
   refreshObjectsList();
