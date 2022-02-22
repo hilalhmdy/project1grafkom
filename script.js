@@ -36,8 +36,6 @@ const fSource = `
   }
 `;
 
-function main() {}
-
 //Leftbar
 const refreshObjectsList = () => {
   var inner = '<h3>Daftar Objek</h3>';
@@ -65,11 +63,11 @@ const getCoord = (canvas, e) => {
   return { x, y };
 };
 
-const mouseMoveListener = (e) => {
+canvas.addEventListener('mousemove', (e) => {
   if (objectIdx < 0 || verticeIdx < 0) return;
   const { x, y } = getCoord(canvas, e);
   objects[objectIdx].vertices[verticeIdx].coor = vec2(x, y);
-};
+});
 
 canvas.addEventListener('mousedown', (e) => {
   if (objectIdx < 0 || verticeIdx < 0) return;
