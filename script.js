@@ -107,10 +107,16 @@ function render() {
 }
 
 //Rightbar
+const poligonButton = document.getElementById('Poligon');
+poligonButton.addEventListener('click', (e) => {
+  drawButton(e.target.id);
+});
+
 const drawButton = (id) => {
   if (id == drawMethod) {
     document.getElementById(id).innerHTML = id;
     drawMethod = '';
+
     // Save this object
     objects[objectIdx].vertices.pop();
     objectIdx = -1;
@@ -121,17 +127,21 @@ const drawButton = (id) => {
     if (drawMethod != '') {
       //Save this object
       document.getElementById(drawMethod).innerHTML = drawMethod;
+
       // Save this object
       objects[objectIdx].vertices.pop();
       objectIdx = -1;
       verticeIdx = -1;
       refreshObjectsList();
     }
+
     document.getElementById(id).innerHTML = 'Save';
     drawMethod = id;
+
     //Menambahkan objek baru dengan 1 vertice
     objectIdx = objects.length;
     verticeIdx = 0;
+
     objects.push({
       type: id,
       name: 'Nameless ' + id,
