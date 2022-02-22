@@ -87,6 +87,7 @@ gl.useProgram(program);
 // Associate out shader variables with our data buffer
 const vBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+
 const vPosition = gl.getAttribLocation(program, 'vPosition');
 gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
 gl.enableVertexAttribArray(vPosition);
@@ -107,6 +108,11 @@ function render() {
 }
 
 //Rightbar
+const rectangleButton = document.getElementById('rectangle');
+rectangleButton.addEventListener('click', (e) => {
+  drawButton(e.target.id);
+});
+
 const poligonButton = document.getElementById('Poligon');
 poligonButton.addEventListener('click', (e) => {
   drawButton(e.target.id);
