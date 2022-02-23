@@ -15,6 +15,7 @@ const chosen = {}; //Yang akan ditampilkan di rightbar properties
 let drawMethod = '';
 let objectIdx = -1;
 let verticeIdx = -1;
+let firstClick = true;
 
 const vSource = `
   attribute vec4 vPosition;
@@ -36,6 +37,12 @@ const fSource = `
   }
 `;
 
+const getCoord = (canvas, e) => {
+  const x = (2 * (e.clientX - canvas.offsetLeft)) / canvas.clientWidth - 1;
+  const y = 1 - (2 * (e.clientY - canvas.offsetTop)) / canvas.clientHeight;
+  return { x, y };
+};
+
 //Leftbar
 const refreshObjectsList = () => {
   var inner = '<h3>Daftar Objek</h3>';
@@ -47,6 +54,7 @@ const refreshObjectsList = () => {
   }
   document.getElementById('leftbar').innerHTML = inner;
 };
+
 refreshObjectsList();
 
 //Canvas Purposes
@@ -57,23 +65,54 @@ if (!gl) {
   alert("WebGL isn't available");
 }
 
-const getCoord = (canvas, e) => {
-  const x = (2 * (e.clientX - canvas.offsetLeft)) / canvas.clientWidth - 1;
-  const y = 1 - (2 * (e.clientY - canvas.offsetTop)) / canvas.clientHeight;
-  return { x, y };
-};
-
 canvas.addEventListener('mousemove', (e) => {
   if (objectIdx < 0 || verticeIdx < 0) return;
+
   const { x, y } = getCoord(canvas, e);
-  objects[objectIdx].vertices[verticeIdx].coor = vec2(x, y);
+
+  if (objects[objectIdx].type == 'rectangle') {
+    const vm3 = objects[objectIdx].vertices[verticeIdx - 3].coor;
+
+    objects[objectIdx].vertices[verticeIdx].coor = vec2(x, vm3[1]);
+    objects[objectIdx].vertices[verticeIdx - 1].coor = vec2(x, y);
+    objects[objectIdx].vertices[verticeIdx - 2].coor = vec2(vm3[0], y);
+  } else {
+    objects[objectIdx].vertices[verticeIdx].coor = vec2(x, y);
+  }
 });
 
 canvas.addEventListener('mousedown', (e) => {
   if (objectIdx < 0 || verticeIdx < 0) return;
+
   const { x, y } = getCoord(canvas, e);
-  objects[objectIdx].vertices.push({ type: 'Point', name: 'Nameless Point', coor: vec2(x, y) });
+
+  if (objects[objectIdx].type == 'rectangle') {
+    if (firstClick) {
+      firstClick = false;
+      objects[objectIdx].vertices[0].coor = vec2(x, y);
+      objects[objectIdx].vertices.push({
+        type: 'Point',
+        name: 'Nameless Point',
+        coor: vec2(x, y),
+      });
+      objects[objectIdx].vertices.push({
+        type: 'Point',
+        name: 'Nameless Point',
+        coor: vec2(x, y),
+      });
+      verticeIdx += 2;
+    } else {
+      firstClick = true;
+    }
+  }
+
+  objects[objectIdx].vertices.push({
+    type: 'Point',
+    name: 'Nameless Point',
+    coor: vec2(x, y),
+  });
   verticeIdx++;
+
   refreshObjectsList();
 });
 
@@ -101,26 +140,30 @@ function render() {
     for (let j = 0; j < objects[i].vertices.length; j++) {
       vertices.push(objects[i].vertices[j].coor);
     }
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
-    if (objects[i].type == "Poligon") {
-      gl.drawArrays(gl.LINE_LOOP, 0, vertices.length);
 
-    } else if (objects[i].type == "Line") {
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+    if (objects[i].type == 'Poligon') {
+      gl.drawArrays(gl.LINE_LOOP, 0, vertices.length);
+    } else if (objects[i].type == 'Line') {
       gl.drawArrays(gl.LINES, 0, vertices.length);
-    } else if (objects[i].type == "Square") {
+    } else if (objects[i].type == 'Square') {
       const lastVertices = vertices.pop();
-      console.log("last vertice: ")
+
+      console.log('last vertice: ');
       console.log(lastVertices);
+
       vertices.push(vertices[1]);
       vertices.push(vertices[2]);
       vertices.push(lastVertices);
-      console.log("vertices: ");
+
+      console.log('vertices: ');
       console.log(vertices);
-      gl.drawArrays(gl.TRIANGLES, 0 , vertices.length);
-    } else if (objects[i].type == "rectangle"){
+
+      gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
+    } else if (objects[i].type == 'rectangle') {
       gl.drawArrays(gl.LINE_LOOP, 0, vertices.length);
     }
-    
   }
   window.requestAnimFrame(render);
 }
