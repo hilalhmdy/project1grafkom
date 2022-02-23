@@ -108,6 +108,16 @@ function render() {
 }
 
 //Rightbar
+const lineButton = document.getElementById('line');
+lineButton.addEventListener('click', (e) => {
+  drawButton(e.target.id);
+});
+
+const persegiButton = document.getElementById('persegi');
+lineButton.addEventListener('click', (e) => {
+  drawButton(e.target.id);
+});
+
 const rectangleButton = document.getElementById('rectangle');
 rectangleButton.addEventListener('click', (e) => {
   drawButton(e.target.id);
