@@ -102,19 +102,37 @@ function render() {
       vertices.push(objects[i].vertices[j].coor);
     }
     gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
-    gl.drawArrays(gl.LINE_LOOP, 0, vertices.length);
+    if (objects[i].type == "Poligon") {
+      gl.drawArrays(gl.LINE_LOOP, 0, vertices.length);
+
+    } else if (objects[i].type == "Line") {
+      gl.drawArrays(gl.LINES, 0, vertices.length);
+    } else if (objects[i].type == "Square") {
+      const lastVertices = vertices.pop();
+      console.log("last vertice: ")
+      console.log(lastVertices);
+      vertices.push(vertices[1]);
+      vertices.push(vertices[2]);
+      vertices.push(lastVertices);
+      console.log("vertices: ");
+      console.log(vertices);
+      gl.drawArrays(gl.TRIANGLES, 0 , vertices.length);
+    } else if (objects[i].type == "rectangle"){
+      gl.drawArrays(gl.LINE_LOOP, 0, vertices.length);
+    }
+    
   }
   window.requestAnimFrame(render);
 }
 
 //Rightbar
-const lineButton = document.getElementById('line');
+const lineButton = document.getElementById('Line');
 lineButton.addEventListener('click', (e) => {
   drawButton(e.target.id);
 });
 
-const persegiButton = document.getElementById('persegi');
-lineButton.addEventListener('click', (e) => {
+const persegiButton = document.getElementById('Square');
+persegiButton.addEventListener('click', (e) => {
   drawButton(e.target.id);
 });
 
