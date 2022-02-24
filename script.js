@@ -1,5 +1,30 @@
 //States
 let objects = [
+    /*{
+        type: 'Line',
+    },
+    {
+        type: 'Square',
+        name: 'Nameless square',
+        center: { type: 'Point', name: 'Nameless Point', coor: [0.5, 0.5], color: [0, 0.5, 1, 1]},
+        vertice: { type: 'Point', name: 'Nameless Point', coor: [0.5, -0.5], color: [0.5, 1, 0, 1]},
+    },
+    {
+        type: 'Rectangle',
+        name: 'Nameless square',
+        center: { type: 'Point', name: 'Nameless Point', coor: [0.5, 0.5], color: [0, 0.5, 1, 1]},
+        vertice: { type: 'Point', name: 'Nameless Point', coor: [0.5, -0.5], color: [0.5, 1, 0, 1]},
+    },*/
+    {
+        type: 'Polygon',
+        name: 'Nameless polygon2',
+        vertices: [
+            { type: 'Point', name: 'Nameless Point', coor: [1, 0], color: [0, 0, 0, 1]},
+            { type: 'Point', name: 'Nameless Point', coor: [0 , 1], color: [0, 0, 0, 1]},
+            { type: 'Point', name: 'Nameless Point', coor: [-1, 0], color: [0, 0, 0, 1]},
+            { type: 'Point', name: 'Nameless Point', coor: [0, -1], color: [0, 0, 0, 1]},
+        ],
+    },
     {
         type: 'Polygon',
         name: 'Nameless polygon',
@@ -9,9 +34,9 @@ let objects = [
             { type: 'Point', name: 'Nameless Point', coor: [-0.5, -0.5], color: [1, 0.5, 0, 1]},
             { type: 'Point', name: 'Nameless Point', coor: [-0.5, 0.5], color: [0.5, 0, 1, 1]},
         ],
-    }
+    },
 ]
-let chosenID = [-1, -1] //Yang akan ditampilkan di rightbar properties
+let chosenID = [0, 1] //Yang akan ditampilkan di rightbar properties
 let drawMethod = "";
 let objectIdx = -1;
 let verticeIdx = -1;
@@ -134,7 +159,7 @@ const updateObjName = (value) => {
     refreshChosenInfo();
 }
 const updateSlider = (coorID, value) => {
-    objects[chosenID[0]].vertices[chosenID[1]].coor[coorID] = value;
+    objects[chosenID[0]].vertices[chosenID[1]].coor[coorID] = parseFloat(value);
     refreshChosenInfo();
 }
 
@@ -187,7 +212,6 @@ const refreshChosenInfo = () => {
         for(let i=0; i<3; i++){
             meanColor.push(Math.round(toShow.color[i]*256));
         }
-        console.log(meanColor);
         inner += "</div><div class='horizontalbox'>";
         inner += "<strong>Color: </strong><input type='text' onchange='updateColor(this.value)' value='" + dec_hex(meanColor[0]) + dec_hex(meanColor[1]) + dec_hex(meanColor[2]) + "'></input>";
         inner += "</div>";
@@ -197,6 +221,7 @@ const refreshChosenInfo = () => {
         return;
     } //chosenID 1 tidak valid, chosen pasti object
     toShow = objects[chosenID[0]];
+    console.log(toShow);
     if(toShow.type == 'Polygon'){
         let inner = "<div class='horizontalbox'>"; 
         inner += "<strong>Name: </strong><input type='text' onchange='updateObjName(this.value)' value='" + toShow.name + "'></input>";
@@ -216,6 +241,6 @@ const refreshChosenInfo = () => {
         inner += "<strong>Color: </strong><input type='text' onchange='updateColor(this.value)' value='" + dec_hex(meanColor[0]) + dec_hex(meanColor[1]) + dec_hex(meanColor[2]) + "'></input>";
         inner += "</div>";
         document.getElementById("properti").innerHTML = inner;
-    }
+    }//Lanjutin aja buat setiap bangun
 }
 refreshChosenInfo();
