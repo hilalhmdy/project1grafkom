@@ -2,17 +2,18 @@ console.log(norm(5*Math.atan2(-1, -1) % (2*Math.PI)))
 
 let dummy = new Polygon(0);
 dummy.vertices = [];
-dummy.addVertex([1,0], [0, 0.5, 1, 1], 0),
-dummy.addVertex([0,1], [0.5, 1, 0, 1], 1);
-dummy.addVertex([-1,0], [1, 0.5, 0, 1], 2);
-dummy.addVertex([0,-1], [0.5, 0, 1, 1], 3);
+dummy.addVertex([0.5,0], [0, 0.5, 1, 1], 0),
+dummy.addVertex([0,0.5], [0.5, 1, 0, 1], 1);
+dummy.addVertex([-0.5,0], [1, 0.5, 0, 1], 2);
+dummy.addVertex([0,-0.5], [0.5, 0, 1, 1], 3);
 
 
 //States
 let objects = [
     dummy
 ]
-let chosenID = [0, 1] //Yang akan ditampilkan di rightbar properties
+let chosenID = [-1, -1] //Yang akan ditampilkan di rightbar properties
+let toChooseID = [-1, -1]
 let objectIdx = -1;
 let verticeIdx = -1;
 
@@ -41,8 +42,27 @@ const mouseMoveListener = (e) => {
     let y = 1 -2*(e.clientY - canvas.offsetTop)/canvas.clientHeight;
     let obj = objects[objects.length-1];
     if(drawMethod == ''){
-        return;
+        toChooseID = [-1, -1];
+        for(let i=objects.length-1; i>=0 && toChooseID[0]<0; i--){
+            if(euclideanDistance([x,y], objects[i].center.coor) < 5*epsilon){
+                toChooseID = [i, -1];
+            }
+            for(let j=0; j<objects[i].vertices.length && toChooseID[0]<0; j++){
+                if(euclideanDistance([x,y], objects[i].vertices[j].coor) < 5*epsilon){
+                    toChooseID = [i, j];
+                }
+            }
+        }
+    }else if(drawMethod == '2'){
+        if(chosenID[1]<0){
+            objects[chosenID[0]].moveCenter([x,y]);
+        }else{
+            objects[chosenID[0]].moveVertex(chosenID[1], [x,y]);
+        }
+        refreshChosenInfo();
     }else if(drawMethod == 'Line'){
+        
+    }else if(drawMethod == 'Line2'){
         
     }else if(drawMethod == 'Square'){
         obj.moveCenter([x,y]);
@@ -62,9 +82,16 @@ canvas.addEventListener("mouseup", (e) => {
     let y = 1 -2*(e.clientY - canvas.offsetTop)/canvas.clientHeight;
 
     if(drawMethod == ''){
-        return;
+        chosenID[0] = toChooseID[0];
+        chosenID[1] = toChooseID[1];
+        drawMethod = '2';
+        refreshChosenInfo();
+    }else if(drawMethod == '2'){
+        drawMethod = '';
     }else if(drawMethod == 'Line'){
-        
+        drawMethod = 'Line2'
+    }else if(drawMethod == 'Line2'){
+        drawMethod = '';
     }else if(drawMethod == 'Square'){
         drawMethod = 'Square2';
     }else if(drawMethod == 'Square2'){
@@ -98,6 +125,20 @@ function render() {
     for(let i=0; i<objects.length; i++){
         objects[i].render(gl);
     }
+    if(chosenID[0] >= 0){
+        if(chosenID[1] < 0){
+            objects[chosenID[0]].center.render([1,1,1,1]);
+        }else{
+            objects[chosenID[0]].vertices[chosenID[1]].render([1,1,1,1]);
+        }
+    }
+    if(toChooseID[0] >= 0){
+        if(toChooseID[1] < 0){
+            objects[toChooseID[0]].center.render([1,1,1,1]);
+        }else{
+            objects[toChooseID[0]].vertices[toChooseID[1]].render([1,1,1,1]);
+        }
+    }
     window.requestAnimFrame(render);
 }
 
@@ -116,6 +157,8 @@ const drawButton = (id) => {
             objects.push(new Polygon(objects.length));
             document.getElementById('Polygon').innerHTML = 'Save';
         }
+    }else if(drawMethod == "2"){
+        
     }else{ //Lagi ditengah2 menggambar
         if(drawMethod == 'Polygon'){ //End polygon
             let obj = objects[objects.length-1];
@@ -138,14 +181,26 @@ const updateObjName = (value) => {
     refreshObjectsList();
 }
 const updateSlider = (coorID, value) => {
-    let x = objects[chosenID[0]].vertices[chosenID[1]].coor[0];
-    let y = objects[chosenID[0]].vertices[chosenID[1]].coor[1];
+    let x, y;
+    if(chosenID[1]<0){
+        x = objects[chosenID[0]].center.coor[0];
+        y = objects[chosenID[0]].center.coor[1];
+    }else{
+        x = objects[chosenID[0]].vertices[chosenID[1]].coor[0];
+        y = objects[chosenID[0]].vertices[chosenID[1]].coor[1];
+    }
     if(coorID == 0){
         x = parseFloat(value);
+        document.getElementById('x-value').innerHTML = x.toFixed(3);
     }else{
         y = parseFloat(value);
+        document.getElementById('y-value').innerHTML = y.toFixed(3);
     }
-    objects[chosenID[0]].moveVertex(chosenID[1], [x,y]);
+    if(chosenID[1]<0){
+        objects[chosenID[0]].moveCenter([x,y]);
+    }else{
+        objects[chosenID[0]].moveVertex(chosenID[1], [x,y]);
+    }
 }
 
 const updateColor = (value) => {
@@ -163,9 +218,21 @@ const updateColor = (value) => {
         objects[chosenID[0]].vertices[chosenID[1]].color = toColor;
     }
 }
+const updateSimilarity = () => {
+    let obj = objects[chosenID[0]];
+    obj.preserveSimilarity = !obj.preserveSimilarity;
+    refreshChosenInfo();
+}
+
+const updateSisi = (value) => {
+    let obj = objects[chosenID[0]];
+    let s = euclideanDistance(obj.vertices[0].coor, obj.vertices[1].coor);
+    let mul = parseFloat(value) / s;
+    document.getElementById('s-value').innerHTML = s.toFixed(3);
+    obj.dilate(mul);
+}
 
 const refreshChosenInfo = () => {
-    console.log(chosenID);
     if(!objects[chosenID[0]]) return;
     let toShow = objects[chosenID[0]].vertices[chosenID[1]];
     if(toShow){ //chosenID 0 dan 1 valid, chosen pasti point
@@ -173,6 +240,6 @@ const refreshChosenInfo = () => {
         return;
     } //chosenID 1 tidak valid, chosen pasti object
     toShow = objects[chosenID[0]];
-    document.getElementById("properti").innerHTML = toShow.rightDisplay();
+    document.getElementById("properti").innerHTML = toShow.rightDisplay() + toShow.uniqueDisplay();
 }
 refreshChosenInfo();
