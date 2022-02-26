@@ -1,20 +1,18 @@
 console.log(norm(5*Math.atan2(-1, -1) % (2*Math.PI)))   
 
+let dummy = new Polygon(0);
+dummy.vertices = [];
+dummy.addVertex([1,0], [0, 0.5, 1, 1], 0),
+dummy.addVertex([0,1], [0.5, 1, 0, 1], 1);
+dummy.addVertex([-1,0], [1, 0.5, 0, 1], 2);
+dummy.addVertex([0,-1], [0.5, 0, 1, 1], 3);
+
+
 //States
 let objects = [
-    {
-        type: 'Polygon',
-        name: 'Nameless polygon2',
-        vertices: [
-            new Point([1,0], [0, 0.5, 1, 1], 0),
-            new Point([0,1], [0.5, 1, 0, 1], 1),
-            new Point([-1,0], [1, 0.5, 0, 1], 2),
-            new Point([0,-1], [0.5, 0, 1, 1], 3),
-        ],
-    },
+    dummy
 ]
 let chosenID = [0, 1] //Yang akan ditampilkan di rightbar properties
-let drawMethod = "";
 let objectIdx = -1;
 let verticeIdx = -1;
 
@@ -22,7 +20,7 @@ let verticeIdx = -1;
 const refreshObjectsList = () => {
     let inner = "<h3>Daftar Objek</h3>"
     for(let i=objects.length-1; i>=0; i--){
-        inner += "<button class='objectPreview' onClick='chosenID=[" + i + ",-1]; refreshChosenInfo()'>"+objects[i].name+"</button>";
+        inner += objects[i].leftDisplay();
         for(let j=0; j<objects[i].vertices.length; j++){
             inner += objects[i].vertices[j].leftDisplay(i);
         }
@@ -38,18 +36,46 @@ let gl = WebGLUtils.setupWebGL( canvas );
 if ( !gl ) { alert( "WebGL isn't available" ); }
 
 const mouseMoveListener = (e) => {
-    if(objectIdx < 0 || verticeIdx < 0) return;
+    //Hitung koordinat mouse
     let x = 2*(e.clientX - canvas.offsetLeft)/canvas.clientWidth - 1;
     let y = 1 -2*(e.clientY - canvas.offsetTop)/canvas.clientHeight;
-    objects[objectIdx].vertices[verticeIdx].coor = [x, y];
-    objects[objectIdx].vertices[verticeIdx].color = [0, 0, 0, 1];
+    let obj = objects[objects.length-1];
+    if(drawMethod == ''){
+        return;
+    }else if(drawMethod == 'Line'){
+        
+    }else if(drawMethod == 'Square'){
+        obj.moveCenter([x,y]);
+    }else if(drawMethod == 'Square2'){
+        obj.moveVertex(0, [x,y]);
+    }else if(drawMethod == 'Rectangle'){
+
+    }else if(drawMethod == 'Rectangle2'){
+
+    }else if(drawMethod == 'Polygon'){
+        obj.moveVertex(obj.vertices.length-1, [x,y]);
+    }
 }
-canvas.addEventListener("mousedown", (e) => {
-    if(objectIdx < 0 || verticeIdx < 0) return;
+canvas.addEventListener("mouseup", (e) => {
+    //Hitung koordinat mouse
     let x = 2*(e.clientX - canvas.offsetLeft)/canvas.clientWidth - 1;
     let y = 1 -2*(e.clientY - canvas.offsetTop)/canvas.clientHeight;
-    verticeIdx++;
-    objects[objectIdx].vertices.push(new Point([x,y], [0,0,0,1], verticeIdx))
+
+    if(drawMethod == ''){
+        return;
+    }else if(drawMethod == 'Line'){
+        
+    }else if(drawMethod == 'Square'){
+        drawMethod = 'Square2';
+    }else if(drawMethod == 'Square2'){
+        drawMethod = '';
+    }else if(drawMethod == 'Rectangle'){
+        drawMethod = 'Rectangle2';
+    }else if(drawMethod == 'Rectangle2'){
+        drawMethod = '';
+    }else if(drawMethod == 'Polygon'){
+        objects[objects.length-1].addVertex([x, y], [0,0,0,1]);
+    }
     refreshObjectsList();
 })
 
@@ -63,7 +89,6 @@ gl.useProgram( program );
 
 // Associate out shader variables with our data buffer
 let vBuffer = gl.createBuffer();
-
 let cBuffer = gl.createBuffer();
 
 render();
@@ -71,65 +96,37 @@ render();
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
     for(let i=0; i<objects.length; i++){
-        let vertices = [];
-        let colors = [];
-        for(let j=0; j<objects[i].vertices.length; j++){
-            vertices.push(objects[i].vertices[j].coor);
-            colors.push(objects[i].vertices[j].color);
-        }
-
-        gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
-        let vPosition = gl.getAttribLocation( program, "vPosition" );
-        gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
-        gl.enableVertexAttribArray( vPosition );
-
-        gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
-        let vColor = gl.getAttribLocation( program, "vColor" );
-        gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-        gl.enableVertexAttribArray( vColor );
-
-
-        gl.drawArrays( gl.TRIANGLE_FAN, 0, vertices.length);
+        objects[i].render(gl);
     }
     window.requestAnimFrame(render);
 }
 
 //Rightbar
+let drawMethod = "";
 const drawButton = (id) => {
-    if(id == 'Garis'){
-
-    }else if(id == 'Persegi'){
-
-    }else if(id == 'Persegi Panjang'){
-
-    }else if(id == drawMethod){
-        document.getElementById(id).innerHTML = id;
-        drawMethod = "";
-        // Save this object
-        objects[objectIdx].vertices.pop();
-        objectIdx = -1;
-        verticeIdx = -1;
-        refreshObjectsList();
-    }else{ //Membuat objek baru
-        if(drawMethod != ""){
-            document.getElementById(drawMethod).innerHTML = drawMethod;
-            // Save this object
-            objects[objectIdx].vertices.pop();
-            objectIdx = -1;
-            verticeIdx = -1;
-            refreshObjectsList();
-        }
-        document.getElementById(id).innerHTML = "Save";
+    if(drawMethod == ""){ //Gambar model baru
         drawMethod = id;
-        //Menambahkan objek baru dengan 1 vertice
-        objectIdx = objects.length;
-        verticeIdx = 0;
-        objects.push({type: id, name: "Nameless " + id, vertices: [
-            new Point([0, 0], [0, 0, 0, 1], 0)
-        ]});
+        if(id == 'Line'){
+            objects.push(new Line(objects.length));
+        }else if(id == 'Square'){
+            objects.push(new Square(objects.length));
+        }else if(id == 'Rectangle'){
+            objects.push(new Rectangle(objects.length));
+        }else if(id == 'Polygon'){
+            objects.push(new Polygon(objects.length));
+            document.getElementById('Polygon').innerHTML = 'Save';
+        }
+    }else{ //Lagi ditengah2 menggambar
+        if(drawMethod == 'Polygon'){ //End polygon
+            let obj = objects[objects.length-1];
+            obj.deleteVertex(obj.vertices.length-1);
+            document.getElementById('Polygon').innerHTML = 'Polygon';
+        }else{ //Untuk menghindari komplikasi hapus obj terakhir
+            objects.splice(objects.length,1);
+        }
+        drawMethod = '';
     }
+    refreshObjectsList();
 }
 
 const updateObjName = (value) => {
@@ -139,26 +136,18 @@ const updateObjName = (value) => {
         objects[chosenID[0]].vertices[chosenID[1]].name = value;
     }
     refreshObjectsList();
-    refreshChosenInfo();
 }
 const updateSlider = (coorID, value) => {
-    objects[chosenID[0]].vertices[chosenID[1]].coor[coorID] = parseFloat(value);
-    refreshChosenInfo();
+    let x = objects[chosenID[0]].vertices[chosenID[1]].coor[0];
+    let y = objects[chosenID[0]].vertices[chosenID[1]].coor[1];
+    if(coorID == 0){
+        x = parseFloat(value);
+    }else{
+        y = parseFloat(value);
+    }
+    objects[chosenID[0]].moveVertex(chosenID[1], [x,y]);
 }
 
-const hexcode = "0123456789ABCDEF"
-const deccode = {"0":0, "1":1, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8, "9":9, "A":10, "B":11, "C":12, "D":13, "E":14, "F":15}
-const dec_hex = (dec) => {
-    dec = Math.min(255, dec);
-    return hexcode[Math.floor(dec/16)] + hexcode[dec%16];
-}
-const hex_dec = (hex) => {
-    let toReturn = 0;
-    for(let i=0; i<hex.length; i++){
-        toReturn = toReturn*16 + deccode[hex[i]];
-    }
-    return toReturn;
-}
 const updateColor = (value) => {
     value = hex_dec(value);
     let toColor = [1];
@@ -173,38 +162,17 @@ const updateColor = (value) => {
     }else{
         objects[chosenID[0]].vertices[chosenID[1]].color = toColor;
     }
-    refreshChosenInfo();
 }
 
 const refreshChosenInfo = () => {
+    console.log(chosenID);
     if(!objects[chosenID[0]]) return;
     let toShow = objects[chosenID[0]].vertices[chosenID[1]];
     if(toShow){ //chosenID 0 dan 1 valid, chosen pasti point
-
         document.getElementById("properti").innerHTML = toShow.rightDisplay();
         return;
     } //chosenID 1 tidak valid, chosen pasti object
     toShow = objects[chosenID[0]];
-    console.log(toShow);
-    if(toShow.type == 'Polygon'){
-        let inner = "<div class='horizontalbox'>"; 
-        inner += "<strong>Name: </strong><input type='text' onchange='updateObjName(this.value)' value='" + toShow.name + "'></input>";
-        inner += "</div>";
-        inner += "<div><strong>Type: </strong>" + toShow.type + "</div>";
-        inner += "<div class='horizontalbox'>";
-        let nbV = toShow.vertices.length;
-        let meanColor = [0, 0, 0];
-        for(let i=0; i<nbV; i++){
-            for(let j=0; j<3; j++){
-                meanColor[j] += toShow.vertices[i].color[j];
-            }
-        }
-        for(let i=0; i<3; i++){
-            meanColor[i] = Math.round(meanColor[i]*256/nbV);
-        }
-        inner += "<strong>Color: </strong><input type='text' onchange='updateColor(this.value)' value='" + dec_hex(meanColor[0]) + dec_hex(meanColor[1]) + dec_hex(meanColor[2]) + "'></input>";
-        inner += "</div>";
-        document.getElementById("properti").innerHTML = inner;
-    }//Lanjutin aja buat setiap bangun
+    document.getElementById("properti").innerHTML = toShow.rightDisplay();
 }
 refreshChosenInfo();

@@ -8,28 +8,42 @@ const norm = (deg) => {
 const atan3 = (coor1, coor2) => {
     return Math.atan2(coor2[1] - coor1[1], coor2[0] - coor1[0]);
 }
+const hexcode = "0123456789ABCDEF"
+const deccode = {"0":0, "1":1, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8, "9":9, "A":10, "B":11, "C":12, "D":13, "E":14, "F":15}
+const dec_hex = (dec) => {
+    dec = Math.min(255, dec);
+    return hexcode[Math.floor(dec/16)] + hexcode[dec%16];
+}
+const hex_dec = (hex) => {
+    let toReturn = 0;
+    for(let i=0; i<hex.length; i++){
+        toReturn = toReturn*16 + deccode[hex[i]];
+    }
+    return toReturn;
+}
 
 class Point {
     constructor(coor, color, id=-1){
-        this.id = id; //Bisa jadi tidak diperlukan
+        this.id = id;
         this.name = "Nameless point";
         this.coor = coor;
         this.color = color;
     }
     leftDisplay = (modelId) => {
+        console.log("pointID", this.id);
         return "<button class='pointPreview' onClick='chosenID=[" + modelId + "," + this.id +"]; refreshChosenInfo()'>"+this.name+"</button>";
     }
     rightDisplay = () => {
         let inner = "<div class='horizontalbox'>"; 
         inner += "<strong>Name: </strong><input type='text' onchange='updateObjName(this.value)' value='" + this.name + "'></input>";
         inner += "</div>";
-        inner += "<div><strong>Type: </strong>" + this.type + "</div>";
+        inner += "<div><strong>Type: </strong>Point</div>";
         inner += "<div class='horizontalbox'>";
         inner += "<strong>x: </strong><div id='x-value'>" + this.coor[0].toFixed(3) + "</div>";
-        inner += "<input type='range' min='-1' max='1' step=0.001 value='" + this.coor[0].toFixed(3) + "' onchange='updateSlider(0,this.value)'>";
+        inner += "<input type='range' min='-1' max='1' step=0.001 value='" + this.coor[0].toFixed(3) + "' onInput='updateSlider(0,this.value)'>";
         inner += "</div><div class='horizontalbox'>";
         inner += "<strong>y: </strong><div id='y-value'>" + this.coor[1].toFixed(3) + "</div>";
-        inner += "<input type='range' min='-1' max='1' step=0.001 value='" + this.coor[1].toFixed(3) + "' onchange='updateSlider(1,this.value)'>";
+        inner += "<input type='range' min='-1' max='1' step=0.001 value='" + this.coor[1].toFixed(3) + "' onInput='updateSlider(1,this.value)'>";
         
         let sumColor=[];
         for(let i=0; i<3; i++){
@@ -45,10 +59,13 @@ class Point {
 //Setiap bangun (Line, Square, Rectangle) harus bisa jalanin ini
 class Model {
     constructor(id){
-        this.id = id;
         this.vertices = [];
+        this.type = "Model";
+        this.name = "Nameless Model";
         this.center = new Point([0,0], [0,0,0,1]) //Titik berat
-        this.preserveSimilarity = false;
+        this.preserveSimilarity = true;
+        this.id = id;
+        console.log(id);
     }
     calculateCenter = () => {
         this.center = new Point([0,0], [0,0,0,0]);
@@ -66,7 +83,7 @@ class Model {
         }
     }
     addVertex = (coor, color) => {
-        this.vertices.push(new Point([0,0], [0,0,0,1]))
+        this.vertices.push(new Point(coor, color, this.vertices.length))
         this.calculateCenter();
     }
     editVertexColor = (id, color) => {
@@ -76,6 +93,31 @@ class Model {
     deleteVertex = (id) => {
         this.vertices.splice(id,1);
         this.calculateCenter();
+    }
+    rotate = (deg) => {
+        //Rotate Counterclockwise w.r.t. center based on deg in radian
+        for(let i=0; i<this.vertices.length; i++){
+            let dis = euclideanDistance(this.center.coor, this.vertices[i].coor);
+            let arg = norm(atan3(this.center.coor, this.vertices[i].coor) + deg);
+            this.vertices[i].coor[0] = this.center.coor[0] + Math.cos(arg)*dis;
+            this.vertices[i].coor[1] = this.center.coor[1] + Math.sin(arg)*dis;
+        }
+    }
+    dilate = (mul) => {
+        //Dilate by mul w.r.t. center
+        for(let i=0; i<this.vertices.length; i++){
+            this.vertices[i].coor[0] = mul*(this.vertices[i].coor[0]-this.center.coor[0]) + this.center.coor[0];
+            this.vertices[i].coor[1] = mul*(this.vertices[i].coor[1]-this.center.coor[1]) + this.center.coor[1];
+        }
+    }
+    moveCenter = (coor) => {
+        let translation = [coor[0]-this.center.coor[0], coor[1]-this.center.coor[1]];
+        console.log(translation);
+        this.center.coor = coor;
+        for(let i=0; i<this.vertices.length; i++){
+            this.vertices[i].coor[0] += translation[0];
+            this.vertices[i].coor[1] += translation[1];
+        }
     }
     moveVertex = (id, coor) => {
         if(!this.preserveSimilarity){
@@ -87,18 +129,14 @@ class Model {
         for(let i=0; i<this.vertices.length; i++){
             minDis = Math.min(euclideanDistance(this.center.coor, this.vertices[i].coor), minDis);
         }
-        let mul = euclideanDistance(this.center, coor)/euclideanDistance(this.center.coor, this.vertices[id].coor);
-        let rot = norm(atan3(this.center.coor, coor) - atan3(this.center.coor, this.vertices[id].coor))
+        let mul = euclideanDistance(this.center.coor, coor)/euclideanDistance(this.center.coor, this.vertices[id].coor);
+        let deg = norm(atan3(this.center.coor, coor) - atan3(this.center.coor, this.vertices[id].coor))
         if(minDis * mul < epsilon){return;}
-        for(let i=0; i<this.vertices.length; i++){
-            let dis = euclideanDistance(this.center.coor, this.vertices[i].coor) * mul;
-            let arg = norm(atan3(this.center.coor, this.vertices[id].coor) + rot);
-            this.vertices[i].coor[0] = this.center.coor[0] + Math.cos(arg)*dis;
-            this.vertices[i].coor[1] = this.center.coor[1] + Math.sin(arg)*dis;
-        }
+        this.rotate(deg);
+        this.dilate(mul);
     }
 
-    render = () => {
+    render = (gl) => {
         let vertices = [];
         let colors = [];
         for(let j=0; j<this.vertices.length; j++){
@@ -120,10 +158,68 @@ class Model {
 
         gl.drawArrays( gl.TRIANGLE_FAN, 0, vertices.length);
     }
+    
+    leftDisplay = () => {
+        console.log("objID", this.id);
+        return "<button class='objectPreview' onClick='chosenID=[" + this.id + ",-1]; refreshChosenInfo()'>"+this.name+"</button>";
+    }
+    rightDisplay = () => {
+        let inner = "<div class='horizontalbox'>"; 
+        inner += "<strong>Name: </strong><input type='text' onchange='updateObjName(this.value)' value='" + this.name + "'></input>";
+        inner += "</div>";
+        inner += "<div><strong>Type: </strong>" + this.type + "</div>";
+        inner += "<div class='horizontalbox'>";
+        let nbV = this.vertices.length;
+        let meanColor = [0, 0, 0];
+        for(let i=0; i<nbV; i++){
+            for(let j=0; j<3; j++){
+                meanColor[j] += this.vertices[i].color[j];
+            }
+        }
+        for(let i=0; i<3; i++){
+            meanColor[i] = Math.round(meanColor[i]*256/nbV);
+        }
+        console.log(meanColor);
+        inner += "<strong>Color: </strong><input type='text' onchange='updateColor(this.value)' value='" + dec_hex(meanColor[0]) + dec_hex(meanColor[1]) + dec_hex(meanColor[2]) + "'></input>";
+        inner += "</div>";
+        return inner;
+    }
+}
+
+class Line extends Model {
+    constructor(id){
+        super(id);
+        this.type = "Line";
+    }
+    calculateLength = () => {
+        euclideanDistance(this.vertices[0].coor, this.vertices[1].coor);
+    }
+}
+
+class Square extends Model {
+    constructor(id){
+        super(id);
+        this.vertices.push(new Point([0.01, 0], [0,0,0,1], 0));
+        this.vertices.push(new Point([0, 0.01], [0,0,0,1], 0));
+        this.vertices.push(new Point([-0.01,0], [0,0,0,1], 0));
+        this.vertices.push(new Point([0,-0.01], [0,0,0,1], 0));
+        this.type = "Square";
+    }
+}
+
+class Rectangle extends Model {
+    constructor(id){
+        super(id);
+        this.type = "Rectangle";
+    }
 }
 
 class Polygon extends Model {
     constructor(id){
         super(id);
+        //console.log("id", this.id);
+        this.vertices.push(new Point([0,0], [0,0,0,1], 0))
+        this.type = "Polygon";
+        this.preserveSimilarity = false;
     }
 }
