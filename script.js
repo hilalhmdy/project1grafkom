@@ -1,38 +1,15 @@
+console.log(norm(5*Math.atan2(-1, -1) % (2*Math.PI)))   
+
 //States
 let objects = [
-    /*{
-        type: 'Line',
-    },
-    {
-        type: 'Square',
-        name: 'Nameless square',
-        center: { type: 'Point', name: 'Nameless Point', coor: [0.5, 0.5], color: [0, 0.5, 1, 1]},
-        vertice: { type: 'Point', name: 'Nameless Point', coor: [0.5, -0.5], color: [0.5, 1, 0, 1]},
-    },
-    {
-        type: 'Rectangle',
-        name: 'Nameless square',
-        center: { type: 'Point', name: 'Nameless Point', coor: [0.5, 0.5], color: [0, 0.5, 1, 1]},
-        vertice: { type: 'Point', name: 'Nameless Point', coor: [0.5, -0.5], color: [0.5, 1, 0, 1]},
-    },*/
     {
         type: 'Polygon',
         name: 'Nameless polygon2',
         vertices: [
-            { type: 'Point', name: 'Nameless Point', coor: [1, 0], color: [0, 0, 0, 1]},
-            { type: 'Point', name: 'Nameless Point', coor: [0 , 1], color: [0, 0, 0, 1]},
-            { type: 'Point', name: 'Nameless Point', coor: [-1, 0], color: [0, 0, 0, 1]},
-            { type: 'Point', name: 'Nameless Point', coor: [0, -1], color: [0, 0, 0, 1]},
-        ],
-    },
-    {
-        type: 'Polygon',
-        name: 'Nameless polygon',
-        vertices: [
-            { type: 'Point', name: 'Nameless Point', coor: [0.5, 0.5], color: [0, 0.5, 1, 1]},
-            { type: 'Point', name: 'Nameless Point', coor: [0.5, -0.5], color: [0.5, 1, 0, 1]},
-            { type: 'Point', name: 'Nameless Point', coor: [-0.5, -0.5], color: [1, 0.5, 0, 1]},
-            { type: 'Point', name: 'Nameless Point', coor: [-0.5, 0.5], color: [0.5, 0, 1, 1]},
+            new Point([1,0], [0, 0.5, 1, 1], 0),
+            new Point([0,1], [0.5, 1, 0, 1], 1),
+            new Point([-1,0], [1, 0.5, 0, 1], 2),
+            new Point([0,-1], [0.5, 0, 1, 1], 3),
         ],
     },
 ]
@@ -47,7 +24,7 @@ const refreshObjectsList = () => {
     for(let i=objects.length-1; i>=0; i--){
         inner += "<button class='objectPreview' onClick='chosenID=[" + i + ",-1]; refreshChosenInfo()'>"+objects[i].name+"</button>";
         for(let j=0; j<objects[i].vertices.length; j++){
-            inner += "<button class='pointPreview' onClick='chosenID=[" + i + "," + j +"]; refreshChosenInfo()'>"+objects[i].vertices[j].name+"</button>";
+            inner += objects[i].vertices[j].leftDisplay(i);
         }
     }
     document.getElementById("leftbar").innerHTML = inner;
@@ -71,8 +48,8 @@ canvas.addEventListener("mousedown", (e) => {
     if(objectIdx < 0 || verticeIdx < 0) return;
     let x = 2*(e.clientX - canvas.offsetLeft)/canvas.clientWidth - 1;
     let y = 1 -2*(e.clientY - canvas.offsetTop)/canvas.clientHeight;
-    objects[objectIdx].vertices.push({type: "Point", name: "Nameless Point", coor: [x, y], color: [0, 0, 0, 1]})
     verticeIdx++;
+    objects[objectIdx].vertices.push(new Point([x,y], [0,0,0,1], verticeIdx))
     refreshObjectsList();
 })
 
@@ -121,7 +98,13 @@ function render() {
 
 //Rightbar
 const drawButton = (id) => {
-    if(id == drawMethod){
+    if(id == 'Garis'){
+
+    }else if(id == 'Persegi'){
+
+    }else if(id == 'Persegi Panjang'){
+
+    }else if(id == drawMethod){
         document.getElementById(id).innerHTML = id;
         drawMethod = "";
         // Save this object
@@ -144,7 +127,7 @@ const drawButton = (id) => {
         objectIdx = objects.length;
         verticeIdx = 0;
         objects.push({type: id, name: "Nameless " + id, vertices: [
-            {type: "Point", name: "Nameless Point", coor: [0, 0], color: [0, 0, 0, 1]}
+            new Point([0, 0], [0, 0, 0, 1], 0)
         ]});
     }
 }
@@ -197,27 +180,8 @@ const refreshChosenInfo = () => {
     if(!objects[chosenID[0]]) return;
     let toShow = objects[chosenID[0]].vertices[chosenID[1]];
     if(toShow){ //chosenID 0 dan 1 valid, chosen pasti point
-        let inner = "<div class='horizontalbox'>"; 
-        inner += "<strong>Name: </strong><input type='text' onchange='updateObjName(this.value)' value='" + toShow.name + "'></input>";
-        inner += "</div>";
-        inner += "<div><strong>Type: </strong>" + toShow.type + "</div>";
-        inner += "<div class='horizontalbox'>";
-        inner += "<strong>x: </strong><div id='x-value'>" + toShow.coor[0].toFixed(3) + "</div>";
-        inner += "<input type='range' min='-1' max='1' step=0.001 value='" + toShow.coor[0].toFixed(3) + "' onchange='updateSlider(0,this.value)'>";
-        inner += "</div><div class='horizontalbox'>";
-        inner += "<strong>y: </strong><div id='y-value'>" + toShow.coor[1].toFixed(3) + "</div>";
-        inner += "<input type='range' min='-1' max='1' step=0.001 value='" + toShow.coor[1].toFixed(3) + "' onchange='updateSlider(1,this.value)'>";
-        
-        let meanColor=[];
-        for(let i=0; i<3; i++){
-            meanColor.push(Math.round(toShow.color[i]*256));
-        }
-        inner += "</div><div class='horizontalbox'>";
-        inner += "<strong>Color: </strong><input type='text' onchange='updateColor(this.value)' value='" + dec_hex(meanColor[0]) + dec_hex(meanColor[1]) + dec_hex(meanColor[2]) + "'></input>";
-        inner += "</div>";
 
-        document.getElementById("properti").innerHTML = inner;
-
+        document.getElementById("properti").innerHTML = toShow.rightDisplay();
         return;
     } //chosenID 1 tidak valid, chosen pasti object
     toShow = objects[chosenID[0]];
