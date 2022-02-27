@@ -25,9 +25,12 @@ const refreshObjectsList = () => {
         for(let j=0; j<objects[i].vertices.length; j++){
             inner += objects[i].vertices[j].leftDisplay(i);
         }
+
     }
-    document.getElementById("leftbar").innerHTML = inner;
-}
+  }
+  document.getElementById('leftbar').innerHTML = inner;
+};
+
 refreshObjectsList();
 
 //Canvas Purposes
@@ -106,9 +109,11 @@ canvas.addEventListener("mouseup", (e) => {
     refreshObjectsList();
 })
 
+  refreshObjectsList();
+});
 
-gl.viewport( 0, 0, canvas.width, canvas.height );
-gl.clearColor( 0.8, 0.8, 0.8, 1.0 );
+gl.viewport(0, 0, canvas.width, canvas.height);
+gl.clearColor(0.8, 0.8, 0.8, 1.0);
 
 //  Load shaders and initialize attribute buffers
 let program = initShaders( gl, "vertex-shader", "fragment-shader" );
@@ -139,7 +144,32 @@ function render() {
             objects[toChooseID[0]].vertices[toChooseID[1]].render([1,1,1,1]);
         }
     }
-    window.requestAnimFrame(render);
+
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+    if (objects[i].type == 'Poligon') {
+      gl.drawArrays(gl.LINE_LOOP, 0, vertices.length);
+    } else if (objects[i].type == 'Line') {
+      gl.drawArrays(gl.LINES, 0, vertices.length);
+    } else if (objects[i].type == 'Square') {
+      const lastVertices = vertices.pop();
+
+      console.log('last vertice: ');
+      console.log(lastVertices);
+
+      vertices.push(vertices[1]);
+      vertices.push(vertices[2]);
+      vertices.push(lastVertices);
+
+      console.log('vertices: ');
+      console.log(vertices);
+
+      gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
+    } else if (objects[i].type == 'rectangle') {
+      gl.drawArrays(gl.LINE_LOOP, 0, vertices.length);
+    }
+  }
+  window.requestAnimFrame(render);
 }
 
 //Rightbar
