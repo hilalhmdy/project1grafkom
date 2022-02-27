@@ -9,9 +9,9 @@ h3{
     padding: 0;
     align-self: center;
 }
-canvas{
-    width: 600px;
-    height: 600px;
+h5{
+    margin: 0;
+    padding: 0;
 }
 .sidebar{
     display: flex;
@@ -35,4 +35,8 @@ canvas{
 }
 .pointPreview{
     margin-left: 50px;
+}
+.colorpk{
+    width: 1px;
+    height: 1px;
 }

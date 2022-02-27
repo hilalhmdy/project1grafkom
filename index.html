@@ -8,12 +8,13 @@
     <script type="text/javascript" src="webgl-utils.js"></script>
     <script type="text/javascript" src="initShaders.js"></script>
     <script type="text/javascript" src="MV.js"></script>
-    <link rel="stylesheet" href="styles.css" />
+    <script type="text/javascript" src="Model.js"></script>
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div class="sidebar" id="leftbar"><h1></h1></div>
+    <div class="sidebar" id="leftbar"></div>
     <div>
-      <canvas id="gl-canvas">
+      <canvas id="gl-canvas" onmousemove="mouseMoveListener(event)" width=750, height=750>
         Oops ... your browser doesn't support the HTML5 canvas element
       </canvas>
     </div>
@@ -21,13 +22,13 @@
     <div class="sidebar" id="rightbar">
       <h3>Gambar Objek Baru</h3>
       <div class="horizontalbox">
-        <button class="draw-button" id="Line">Garis</button>
-        <button class="draw-button" id="Square">Persegi</button>
+        <button class="draw-button" id="Line" onclick="drawButton(id)">Line</button>
+        <button class="draw-button" id="Square" onclick="drawButton(id)">Square</button>
       </div>
 
       <div class="horizontalbox">
-        <button class="draw-button" id="rectangle">Persegi panjang</button>
-        <button class="draw-button" id="Poligon">Poligon</button>
+        <button class="draw-button" id="Rectangle" onclick="drawButton(id)">Rectangle</button>
+        <button class="draw-button" id="Polygon" onclick="drawButton(id)">Polygon</button>
       </div>
 
       <h3>Util</h3>
@@ -38,6 +39,7 @@
       </div>
 
       <h3>Properti</h3>
+      <div id="properti"></div>
     </div>
   </body>
 
