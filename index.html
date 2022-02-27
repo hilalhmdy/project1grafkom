@@ -32,11 +32,18 @@
       </div>
 
       <h3>Util</h3>
+      <section class="file">
+        <input type="text" id="export_file" placeholder="Enter file name">
+        <input type="button" value="Export" onclick="exportFile()">
+        <input type="file" id="import_file" accept=".json">
+        <input type="button" value="Import" onclick="importFile()">
+      </section>
       <div class="horizontalbox">
         <button>Save object</button>
         <button>Save all</button>
         <button>Help</button>
       </div>
+
 
       <h3>Properti</h3>
       <div id="properti"></div>
