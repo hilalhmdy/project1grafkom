@@ -120,6 +120,7 @@ canvas.addEventListener('mouseup', (e) => {
     objects[objects.length - 1].vertices[0].coor = [x, y];
   } else if (drawMethod == 'Rectangle2') {
     drawMethod = '';
+    objects[objects.length - 1].calculateCenter();
   } else if (drawMethod == 'Polygon') {
     objects[objects.length - 1].addVertex([x, y], [0, 0, 0, 1]);
   }

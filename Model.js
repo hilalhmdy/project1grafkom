@@ -272,6 +272,13 @@ class Rectangle extends Model {
     uniqueDisplay = () => {
         return "";
     }
+
+    calculateCenter = () => {
+        const xCenter = (this.vertices[0].coor[0] + this.vertices[1].coor[0]) / 2;
+        const yCenter = (this.vertices[0].coor[1] + this.vertices[3].coor[1]) / 2;
+
+        this.center.coor = [xCenter, yCenter]
+    }
 }
 
 class Polygon extends Model {
