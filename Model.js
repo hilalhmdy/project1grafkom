@@ -293,9 +293,63 @@ class Rectangle extends Model {
         this.type = "Rectangle";
         this.name = "Nameless Rectangle";
     }
+
+    calculateNewHeight = (newH) => {
+        const mul = newH / euclideanDistance(this.vertices[1].coor, this.vertices[2].coor).toFixed(3);
+        
+        const leftLine = new Line(99)
+        leftLine.vertices[0].coor = this.vertices[0].coor
+        leftLine.vertices[1].coor = this.vertices[3].coor
+        leftLine.calculateCenter()
+        leftLine.dilate(mul)
+        
+        const rightLine = new Line(98)
+        rightLine.vertices[0].coor = this.vertices[1].coor
+        rightLine.vertices[1].coor = this.vertices[2].coor
+        rightLine.calculateCenter()
+        rightLine.dilate(mul)
+
+        this.vertices[0].coor = leftLine.vertices[0].coor
+        this.vertices[1].coor = rightLine.vertices[0].coor
+        this.vertices[2].coor = rightLine.vertices[1].coor
+        this.vertices[3].coor = leftLine.vertices[1].coor
+    }
+
+    calculateNewWidth = (newW) => {
+        const mul = newW / euclideanDistance(this.vertices[0].coor, this.vertices[1].coor).toFixed(3);
+        
+        const topLine = new Line(99)
+        topLine.vertices[0].coor = this.vertices[0].coor
+        topLine.vertices[1].coor = this.vertices[1].coor
+        topLine.calculateCenter()
+        topLine.dilate(mul)
+        
+        const bottomLine = new Line(98)
+        bottomLine.vertices[0].coor = this.vertices[2].coor
+        bottomLine.vertices[1].coor = this.vertices[3].coor
+        bottomLine.calculateCenter()
+        bottomLine.dilate(mul)
+
+        this.vertices[0].coor = topLine.vertices[0].coor
+        this.vertices[1].coor = topLine.vertices[1].coor
+        this.vertices[2].coor = bottomLine.vertices[0].coor
+        this.vertices[3].coor = bottomLine.vertices[1].coor
+    }
     
     uniqueDisplay = () => {
-        return "";
+        const w = euclideanDistance(this.vertices[0].coor, this.vertices[1].coor).toFixed(3);
+        const h = euclideanDistance(this.vertices[1].coor, this.vertices[2].coor).toFixed(3);
+        let inner = "<div class='horizontalbox'>"
+        inner += "</div><div class='horizontalbox'>";
+        inner += "<strong>Tinggi: </strong><div id='h-value'>" + h + "</div>";
+        inner += "<input type='range' min='0' max='1' step=0.001 value='" + h + "' onInput='updateRectangleHeight(this.value)'>";
+        inner += "</div>"
+        inner += "<div class='horizontalbox'>"
+        inner += "</div><div class='horizontalbox'>";
+        inner += "<strong>Lebar: </strong><div id='w-value'>" + w + "</div>";
+        inner += "<input type='range' min='0' max='1' step=0.001 value='" + w + "' onInput='updateRectangleWidth(this.value)'>";
+        inner += "</div>"
+        return inner;
     }
 }
 
