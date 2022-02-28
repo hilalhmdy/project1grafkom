@@ -111,6 +111,7 @@ canvas.addEventListener('mouseup', (e) => {
     objects[objects.length - 1].vertices[0].coor = [x, y];
   } else if (drawMethod == 'Line2') {
     drawMethod = '';
+    objects[objects.length - 1].calculateCenter();
   } else if (drawMethod == 'Square') {
     drawMethod = 'Square2';
   } else if (drawMethod == 'Square2') {
@@ -253,6 +254,15 @@ const updateSisi = (value) => {
   let mul = parseFloat(value) / s;
   document.getElementById('s-value').innerHTML = s.toFixed(3);
   obj.dilate(mul);
+};
+
+const updateRectangleHeight = (value) => {
+  const obj = objects[chosenID[0]];
+  const ver = obj.vertices;
+  ver[0].coor = [ver[0].coor[0], ver[0].coor[1] + value / 2];
+  ver[1].coor = [ver[1].coor[0], ver[1].coor[1] + value / 2];
+  ver[2].coor = [ver[2].coor[0], ver[2].coor[1] - value / 2];
+  ver[3].coor = [ver[3].coor[0], ver[3].coor[1] - value / 2];
 };
 
 const refreshChosenInfo = () => {
