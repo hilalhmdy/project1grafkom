@@ -265,11 +265,18 @@ const updateSisi = (value) => {
 
 const updateRectangleHeight = (value) => {
   const obj = objects[chosenID[0]];
-  const ver = obj.vertices;
-  ver[0].coor = [ver[0].coor[0], ver[0].coor[1] + value / 2];
-  ver[1].coor = [ver[1].coor[0], ver[1].coor[1] + value / 2];
-  ver[2].coor = [ver[2].coor[0], ver[2].coor[1] - value / 2];
-  ver[3].coor = [ver[3].coor[0], ver[3].coor[1] - value / 2];
+  const h = euclideanDistance(obj.vertices[1].coor, obj.vertices[2].coor).toFixed(3);
+
+  document.getElementById('h-value').innerHTML = h;
+  obj.calculateNewHeight(value)
+};
+
+const updateRectangleWidth = (value) => {
+  const obj = objects[chosenID[0]];
+  const w = euclideanDistance(obj.vertices[0].coor, obj.vertices[1].coor).toFixed(3);
+
+  document.getElementById('w-value').innerHTML = w;
+  obj.calculateNewWidth(value)
 };
 
 const refreshChosenInfo = () => {
