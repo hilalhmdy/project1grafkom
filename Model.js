@@ -224,15 +224,16 @@ class Line extends Model {
     constructor(id){
         super(id);
         this.vertices.push(new Point([0.01, 0], [0,0,0,1], 0));
-        this.vertices.push(new Point([0, 0.01], [0,0,0,1], 1));
-        this.vertices.push(new Point([-0.01,0], [0,0,0,1], 2));
-        this.vertices.push(new Point([0,-0.01], [0,0,0,1], 3));
         this.type = "Line";
-        this.type = "Nameless Line";
-
+        this.name = "Nameless Line";
     }
     calculateLength = () => {
-        euclideanDistance(this.vertices[0].coor, this.vertices[1].coor);
+        let s = euclideanDistance(this.vertices[0].coor, this.vertices[1].coor);
+        let inner = "<div class='horizontalbox'>"
+        inner += "</div><div class='horizontalbox'>";
+        inner += "<strong>Sisi: </strong><div id='s-value'>" + s + "</div>";
+        inner += "<input type='range' min='-1' max='1' step=0.001 value='" + s + "' onInput='updateSisi(this.value)'>";
+        inner += "</div>"
         return inner;
     }
 }
