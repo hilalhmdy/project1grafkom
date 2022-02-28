@@ -224,6 +224,7 @@ class Line extends Model {
     constructor(id){
         super(id);
         this.vertices.push(new Point([0.01, 0], [0,0,0,1], 0));
+        this.vertices.push(new Point([0.01, 0], [0,0,0,1], 1));
         this.type = "Line";
         this.name = "Nameless Line";
     }
@@ -235,6 +236,29 @@ class Line extends Model {
         inner += "<input type='range' min='-1' max='1' step=0.001 value='" + s + "' onInput='updateSisi(this.value)'>";
         inner += "</div>"
         return inner;
+    }
+
+    render = (gl) => {
+        let vertices = [];
+        let colors = [];
+        for(let j=0; j<this.vertices.length; j++){
+            vertices.push(this.vertices[j].coor);
+            colors.push(this.vertices[j].color);
+        }
+
+        gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
+        let vPosition = gl.getAttribLocation( program, "vPosition" );
+        gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+        gl.enableVertexAttribArray( vPosition );
+
+        gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+        let vColor = gl.getAttribLocation( program, "vColor" );
+        gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
+        gl.enableVertexAttribArray( vColor );
+
+        gl.drawArrays(gl.LINES, 0, vertices.length);
     }
 }
 
