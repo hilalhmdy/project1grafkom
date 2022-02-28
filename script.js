@@ -33,8 +33,10 @@ let verticeIdx = -1;
 const refreshObjectsList = () => {
   let inner = '<h3>Daftar Objek</h3>';
   for (let i = objects.length - 1; i >= 0; i--) {
+    objects[i].id = i;
     inner += objects[i].leftDisplay();
     for (let j = 0; j < objects[i].vertices.length; j++) {
+      objects[i].vertices[j].id = j;
       inner += objects[i].vertices[j].leftDisplay(i);
     }
   }
@@ -285,7 +287,7 @@ var exportFile = function () {
     filename = 'data';
   }
 
-  var data = JSON.stringify(arrObjects);
+  var data = JSON.stringify(objects);
   download(filename + '.json', data);
 
   console.log('The file was saved!');
@@ -297,10 +299,23 @@ var importFile = function () {
   // var data = [];
   reader.onload = function (e) {
     console.log('file imported');
-    arrObjects = JSON.parse(e.target.result);
+    let toAppend = JSON.parse(e.target.result);
     // console.log(data)
     // arrObjects = data
-    render();
+    for(let i=0; i<toAppend.length; i++){
+      let newID = objects.length;
+      if(toAppend[i].type == "Line"){
+        objects.push(new Line(newID));
+      }else if(toAppend[i].type == "Square"){
+        objects.push(new Square(newID));
+      }else if(toAppend[i].type == "Rectangle"){
+        objects.push(new Rectangle(newID));
+      }else if(toAppend[i].type == "Polygon"){
+        objects.push(new Polygon(newID));
+      }
+      objects[newID].copy(toAppend[i]);
+    }
+    refreshObjectsList();
   };
 
   reader.readAsText(file);

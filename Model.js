@@ -32,6 +32,12 @@ class Point {
         this.coor = coor;
         this.color = color;
     }
+    copy = (obj) => {
+        this.id = obj.id;
+        this.name = obj.name;
+        this.coor = obj.coor;
+        this.color = obj.color;
+    }
     leftDisplay = (modelId) => {
         console.log("pointID", this.id);
         return "<button class='pointPreview' onClick='chosenID=[" + modelId + "," + this.id +"]; refreshChosenInfo()'>"+this.name+"</button>";
@@ -91,8 +97,20 @@ class Model {
         this.center = new Point([0,0], [0,0,0,1]) //Titik berat
         this.preserveSimilarity = true;
         this.id = id;
-        console.log(id);
     }
+    copy = (obj) => {
+        this.vertices = [];
+        for(let i=0; i<obj.vertices.length; i++){
+            let p = new Point([0,0], [0,0,0,1]);
+            p.copy(obj.vertices[i]);
+            this.vertices.push(p)
+        }
+        this.name = obj.name;
+        this.center.copy(obj.center);
+        this.preserveSimilarity = obj.preserveSimilarity;
+        this.id = obj.id;
+    }
+
     calculateCenter = () => {
         this.center = new Point([0,0], [0,0,0,0]);
         for(let i=0; i<this.vertices.length; i++){
@@ -119,6 +137,9 @@ class Model {
     deleteVertex = (id) => {
         this.vertices.splice(id,1);
         this.calculateCenter();
+        for(let i=0; i<this.vertices.length; i++){
+            this.vertices[i].id = i;
+        }
     }
     rotate = (deg) => {
         //Rotate Counterclockwise w.r.t. center based on deg in radian
@@ -223,8 +244,8 @@ class Model {
 class Line extends Model {
     constructor(id){
         super(id);
-        this.vertices.push(new Point([0.01, 0], [0,0,0,1], 0));
-        this.vertices.push(new Point([0.01, 0], [0,0,0,1], 1));
+        this.vertices.push(new Point([0, 0], [0,0,0,1], 0));
+        this.vertices.push(new Point([0, 0], [0,0,0,1], 1));
         this.type = "Line";
         this.name = "Nameless Line";
     }
@@ -293,7 +314,7 @@ class Rectangle extends Model {
         this.type = "Rectangle";
         this.name = "Nameless Rectangle";
     }
-    
+
     uniqueDisplay = () => {
         return "";
     }
