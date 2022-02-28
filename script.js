@@ -16,18 +16,19 @@ const fSource = `
   }
 `;
 
-let dummy = new Polygon(0);
+const dummy = new Polygon(0);
 dummy.vertices = [];
 dummy.addVertex([0.5, 0], [0, 0.5, 1, 1], 0), dummy.addVertex([0, 0.5], [0.5, 1, 0, 1], 1);
 dummy.addVertex([-0.5, 0], [1, 0.5, 0, 1], 2);
 dummy.addVertex([0, -0.5], [0.5, 0, 1, 1], 3);
 
 //States
-let objects = [dummy];
-let chosenID = [-1, -1]; //Yang akan ditampilkan di rightbar properties
+const objects = [dummy];
+const chosenID = [-1, -1]; //Yang akan ditampilkan di rightbar properties
 let toChooseID = [-1, -1];
 let objectIdx = -1;
 let verticeIdx = -1;
+let drawMethod = '';
 
 //Leftbar
 const refreshObjectsList = () => {
@@ -46,18 +47,15 @@ const refreshObjectsList = () => {
 refreshObjectsList();
 
 //Canvas Purposes
-let canvas = document.getElementById('gl-canvas');
-
-let gl = WebGLUtils.setupWebGL(canvas);
-if (!gl) {
-  alert("WebGL isn't available");
-}
+const canvas = document.getElementById('gl-canvas');
+const gl = setupWebGL(canvas);
 
 const mouseMoveListener = (e) => {
   //Hitung koordinat mouse
   let x = (2 * (e.clientX - canvas.offsetLeft)) / canvas.clientWidth - 1;
   let y = 1 - (2 * (e.clientY - canvas.offsetTop)) / canvas.clientHeight;
   let obj = objects[objects.length - 1];
+
   if (drawMethod == '') {
     toChooseID = [-1, -1];
     for (let i = objects.length - 1; i >= 0 && toChooseID[0] < 0; i--) {
@@ -96,10 +94,11 @@ const mouseMoveListener = (e) => {
     obj.moveVertex(obj.vertices.length - 1, [x, y]);
   }
 };
+
 canvas.addEventListener('mouseup', (e) => {
   //Hitung koordinat mouse
-  let x = (2 * (e.clientX - canvas.offsetLeft)) / canvas.clientWidth - 1;
-  let y = 1 - (2 * (e.clientY - canvas.offsetTop)) / canvas.clientHeight;
+  const x = (2 * (e.clientX - canvas.offsetLeft)) / canvas.clientWidth - 1;
+  const y = 1 - (2 * (e.clientY - canvas.offsetTop)) / canvas.clientHeight;
 
   if (drawMethod == '') {
     chosenID[0] = toChooseID[0];
@@ -134,12 +133,12 @@ gl.viewport(0, 0, canvas.width, canvas.height);
 gl.clearColor(0.8, 0.8, 0.8, 1.0);
 
 //  Load shaders and initialize attribute buffers
-let program = initShaders(gl, vSource, fSource);
+const program = initShaders(gl, vSource, fSource);
 gl.useProgram(program);
 
 // Associate out shader variables with our data buffer
-let vBuffer = gl.createBuffer();
-let cBuffer = gl.createBuffer();
+const vBuffer = gl.createBuffer();
+const cBuffer = gl.createBuffer();
 
 render();
 
@@ -166,7 +165,6 @@ function render() {
 }
 
 //Rightbar
-let drawMethod = '';
 const drawButton = (id) => {
   if (drawMethod == '') {
     //Gambar model baru
@@ -181,7 +179,7 @@ const drawButton = (id) => {
       objects.push(new Polygon(objects.length));
       document.getElementById('Polygon').innerHTML = 'Save';
     } else if (id == 'Polygon Strips') {
-      let p = new Polygon(objects.length);
+      const p = new Polygon(objects.length);
       p.isFan = false;
       objects.push(p);
       document.getElementById('Polygon Strips').innerHTML = 'Save';
@@ -191,12 +189,12 @@ const drawButton = (id) => {
     //Lagi ditengah2 menggambar
     if (drawMethod == 'Polygon') {
       //End polygon
-      let obj = objects[objects.length - 1];
+      const obj = objects[objects.length - 1];
       obj.deleteVertex(obj.vertices.length - 1);
       document.getElementById('Polygon').innerHTML = 'Polygon';
-    } else if(drawMethod == 'Polygon Strips'){
+    } else if (drawMethod == 'Polygon Strips') {
       //End polygon
-      let obj = objects[objects.length - 1];
+      const obj = objects[objects.length - 1];
       obj.deleteVertex(obj.vertices.length - 1);
       document.getElementById('Polygon Strips').innerHTML = 'Polygon Strips';
     } else {
@@ -206,6 +204,7 @@ const drawButton = (id) => {
 
     drawMethod = '';
   }
+
   refreshObjectsList();
 };
 
@@ -217,6 +216,7 @@ const updateObjName = (value) => {
   }
   refreshObjectsList();
 };
+
 const updateSlider = (coorID, value) => {
   let x, y;
   if (chosenID[1] < 0) {
@@ -241,17 +241,20 @@ const updateSlider = (coorID, value) => {
 };
 
 const updateColor = (value, includetag = false) => {
-  if(includetag){
+  if (includetag) {
     value = value[1] + value[2] + value[3] + value[4] + value[5] + value[6];
   }
+
   value = value.toUpperCase();
   console.log(value);
   value = hex_dec(value);
-  let toColor = [1];
+  const toColor = [1];
+
   for (let i = 0; i < 3; i++) {
     toColor.unshift((value % 256) / 256);
     value = Math.floor(value / 256);
   }
+
   if (chosenID[1] < 0) {
     for (let i = 0; i < objects[chosenID[0]].vertices.length; i++) {
       objects[chosenID[0]].vertices[i].color = toColor;
@@ -260,21 +263,23 @@ const updateColor = (value, includetag = false) => {
     objects[chosenID[0]].vertices[chosenID[1]].color = toColor;
   }
 };
+
 const updateSimilarity = () => {
-  let obj = objects[chosenID[0]];
+  const obj = objects[chosenID[0]];
   obj.preserveSimilarity = !obj.preserveSimilarity;
   refreshChosenInfo();
 };
+
 const updateDrawMethod = () => {
-  let obj = objects[chosenID[0]];
+  const obj = objects[chosenID[0]];
   obj.isFan = !obj.isFan;
   refreshChosenInfo();
 };
 
 const updateSisi = (value) => {
-  let obj = objects[chosenID[0]];
-  let s = euclideanDistance(obj.vertices[0].coor, obj.vertices[1].coor);
-  let mul = parseFloat(value) / s;
+  const obj = objects[chosenID[0]];
+  const s = euclideanDistance(obj.vertices[0].coor, obj.vertices[1].coor);
+  const mul = parseFloat(value) / s;
   document.getElementById('s-value').innerHTML = s.toFixed(3);
   obj.dilate(mul);
 };
@@ -284,7 +289,7 @@ const updateRectangleHeight = (value) => {
   const h = euclideanDistance(obj.vertices[1].coor, obj.vertices[2].coor).toFixed(3);
 
   document.getElementById('h-value').innerHTML = h;
-  obj.calculateNewHeight(value)
+  obj.calculateNewHeight(value);
 };
 
 const updateRectangleWidth = (value) => {
@@ -292,53 +297,55 @@ const updateRectangleWidth = (value) => {
   const w = euclideanDistance(obj.vertices[0].coor, obj.vertices[1].coor).toFixed(3);
 
   document.getElementById('w-value').innerHTML = w;
-  obj.calculateNewWidth(value)
+  obj.calculateNewWidth(value);
 };
 
 const refreshChosenInfo = () => {
   if (!objects[chosenID[0]]) return;
   let toShow = objects[chosenID[0]].vertices[chosenID[1]];
+
   if (toShow) {
     //chosenID 0 dan 1 valid, chosen pasti point
     document.getElementById('properti').innerHTML = toShow.rightDisplay();
     return;
   } //chosenID 1 tidak valid, chosen pasti object
+
   toShow = objects[chosenID[0]];
   document.getElementById('properti').innerHTML = toShow.rightDisplay() + toShow.uniqueDisplay();
 };
+
 refreshChosenInfo();
 
-var exportFile = function () {
-  var filename = document.getElementById('export_file').value;
+const exportFile = function () {
+  let filename = document.getElementById('export_file').value;
 
   if (!filename) {
     filename = 'data';
   }
 
-  var data = JSON.stringify(objects);
+  const data = JSON.stringify(objects);
   download(filename + '.json', data);
 
   console.log('The file was saved!');
 };
 
-var importFile = function () {
-  var file = document.getElementById('import_file').files[0];
-  var reader = new FileReader();
-  // var data = [];
+const importFile = function () {
+  const file = document.getElementById('import_file').files[0];
+  const reader = new FileReader();
+
   reader.onload = function (e) {
     console.log('file imported');
-    let toAppend = JSON.parse(e.target.result);
-    // console.log(data)
-    // arrObjects = data
-    for(let i=0; i<toAppend.length; i++){
-      let newID = objects.length;
-      if(toAppend[i].type == "Line"){
+    const toAppend = JSON.parse(e.target.result);
+
+    for (let i = 0; i < toAppend.length; i++) {
+      const newID = objects.length;
+      if (toAppend[i].type == 'Line') {
         objects.push(new Line(newID));
-      }else if(toAppend[i].type == "Square"){
+      } else if (toAppend[i].type == 'Square') {
         objects.push(new Square(newID));
-      }else if(toAppend[i].type == "Rectangle"){
+      } else if (toAppend[i].type == 'Rectangle') {
         objects.push(new Rectangle(newID));
-      }else if(toAppend[i].type == "Polygon"){
+      } else if (toAppend[i].type == 'Polygon') {
         objects.push(new Polygon(newID));
       }
       objects[newID].copy(toAppend[i]);
@@ -352,8 +359,8 @@ var importFile = function () {
   }
 };
 
-var download = function (filename, text) {
-  var element = document.createElement('a');
+const download = function (filename, text) {
+  const element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
   element.setAttribute('download', filename);
 
@@ -365,9 +372,9 @@ var download = function (filename, text) {
   document.body.removeChild(element);
 };
 
-var help = document.getElementById('help');
-var btn = document.getElementById('helpBtn');
-var span = document.getElementsByClassName('close')[0];
+const help = document.getElementById('help');
+const btn = document.getElementById('helpBtn');
+const span = document.getElementsByClassName('close')[0];
 
 btn.onclick = function () {
   help.style.display = 'block';
