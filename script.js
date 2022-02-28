@@ -286,17 +286,31 @@ const updateSisi = (value) => {
 
 const updateRectangleHeight = (value) => {
   const obj = objects[chosenID[0]];
-  const h = euclideanDistance(obj.vertices[1].coor, obj.vertices[2].coor).toFixed(3);
 
-  document.getElementById('h-value').innerHTML = h;
+  const hVal = document.getElementById('h-value');
+  const hSlide = document.getElementById('h-slide');
+
+  hVal.innerHTML = hSlide.value;
+
+  hSlide.addEventListener('mouseup', (e) => {
+    refreshChosenInfo();
+  });
+
   obj.calculateNewHeight(value);
 };
 
 const updateRectangleWidth = (value) => {
   const obj = objects[chosenID[0]];
-  const w = euclideanDistance(obj.vertices[0].coor, obj.vertices[1].coor).toFixed(3);
 
-  document.getElementById('w-value').innerHTML = w;
+  const wVal = document.getElementById('w-value');
+  const wSlide = document.getElementById('w-slide');
+
+  wVal.innerHTML = wSlide.value;
+
+  wSlide.addEventListener('mouseup', (e) => {
+    refreshChosenInfo();
+  });
+
   obj.calculateNewWidth(value);
 };
 

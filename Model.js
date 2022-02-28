@@ -343,12 +343,12 @@ class Rectangle extends Model {
     let inner = "<div class='horizontalbox'>"
     inner += "</div><div class='horizontalbox'>";
     inner += "<strong>Tinggi: </strong><div id='h-value'>" + h + "</div>";
-    inner += "<input type='range' min='0' max='1' step=0.001 value='" + h + "' onInput='updateRectangleHeight(this.value)'>";
+    inner += "<input id='h-slide' type='range' min='0' max='1' step=0.001 value='" + h + "' onInput='updateRectangleHeight(this.value)'>";
     inner += "</div>"
     inner += "<div class='horizontalbox'>"
     inner += "</div><div class='horizontalbox'>";
     inner += "<strong>Lebar: </strong><div id='w-value'>" + w + "</div>";
-    inner += "<input type='range' min='0' max='1' step=0.001 value='" + w + "' onInput='updateRectangleWidth(this.value)'>";
+    inner += "<input id='w-slide' type='range' min='0' max='1' step=0.001 value='" + w + "' onInput='updateRectangleWidth(this.value)'>";
     inner += "</div>"
     
     return inner;
