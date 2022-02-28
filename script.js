@@ -229,7 +229,12 @@ const updateSlider = (coorID, value) => {
   }
 };
 
-const updateColor = (value) => {
+const updateColor = (value, includetag = false) => {
+  if(includetag){
+    value = value[1] + value[2] + value[3] + value[4] + value[5] + value[6];
+  }
+  value = value.toUpperCase();
+  console.log(value);
   value = hex_dec(value);
   let toColor = [1];
   for (let i = 0; i < 3; i++) {

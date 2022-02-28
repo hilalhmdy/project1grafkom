@@ -59,7 +59,8 @@ class Point {
             sumColor.push(Math.round(this.color[i]*256));
         }
         inner += "</div><div class='horizontalbox'>";
-        inner += "<strong>Color: </strong><input type='text' onchange='updateColor(this.value)' value='" + dec_hex(sumColor[0]) + dec_hex(sumColor[1]) + dec_hex(sumColor[2]) + "'></input>";
+        inner += "<strong>Color: </strong><input type='text' onchange='updateColor(this.value); refreshChosenInfo()' value='" + dec_hex(sumColor[0]) + dec_hex(sumColor[1]) + dec_hex(sumColor[2]) + "'></input>";
+        inner += '<input type="color" value="#' + dec_hex(sumColor[0]) + dec_hex(sumColor[1]) + dec_hex(sumColor[2]) +'" oninput="updateColor(this.value, true)" onchange="refreshChosenInfo()">'
         inner += "</div>";
         return inner;
     }
@@ -125,6 +126,21 @@ class Model {
         for(var j=0; j<4; j++){
             this.center.color[j] /= this.vertices.length;
         }
+    }
+    calculateCircumCenter = () => {
+        let toReturn = 0;
+        for(let i=0; i<this.vertices.length; i++){
+            toReturn += euclideanDistance(this.vertices[i].coor, this.vertices[(i+1)%this.vertices.length].coor);
+        }
+        return toReturn;
+    }
+    calculateArea = () => {
+        let toReturn = 0;
+        for(let i=0; i<this.vertices.length; i++){
+            toReturn += this.vertices[i].coor[0] * this.vertices[(i+1)%this.vertices.length].coor[1];
+            toReturn -= this.vertices[i].coor[1] * this.vertices[(i+1)%this.vertices.length].coor[0];
+        }
+        return Math.abs(toReturn/2);
     }
     addVertex = (coor, color) => {
         this.vertices.push(new Point(coor, color, this.vertices.length))
@@ -216,6 +232,11 @@ class Model {
         inner += "</div>";
         inner += "<div><strong>Type: </strong>" + this.type + "</div>";
         inner += "<div class='horizontalbox'>";
+        inner += "</div><div class='horizontalbox'>";
+        inner += "<strong>Keliling: </strong><div id='k-value'>" + this.calculateCircumCenter().toFixed(3) + "</div>";
+        inner += "</div><div class='horizontalbox'>";
+        inner += "<strong>Luas: </strong><div id='a-value'>" + this.calculateArea().toFixed(3) + "</div>";
+        inner += "</div><div class='horizontalbox'>";
         inner += "<strong>x: </strong><div id='x-value'>" + this.center.coor[0].toFixed(3) + "</div>";
         inner += "<input type='range' min='-1' max='1' step=0.001 value='" + this.center.coor[0].toFixed(3) + "' onInput='updateSlider(0,this.value)'>";
         inner += "</div><div class='horizontalbox'>";
@@ -232,7 +253,8 @@ class Model {
         for(let i=0; i<3; i++){
             meanColor[i] = Math.round(meanColor[i]*256/nbV);
         }
-        inner += "<strong>Color: </strong><input type='text' onchange='updateColor(this.value)' value='" + dec_hex(meanColor[0]) + dec_hex(meanColor[1]) + dec_hex(meanColor[2]) + "'></input>";
+        inner += "<strong>Color: </strong><input type='text' onchange='updateColor(this.value); refreshChosenInfo()' value='" + dec_hex(meanColor[0]) + dec_hex(meanColor[1]) + dec_hex(meanColor[2]) + "'></input>";
+        inner += '<input type="color" value="#' + dec_hex(meanColor[0]) + dec_hex(meanColor[1]) + dec_hex(meanColor[2]) +'" oninput="updateColor(this.value, true)" onchange="refreshChosenInfo()">'
         inner += "</div><div class='horizontalbox'>";
         inner += "<div>Similarity: </div>"
         inner += '<button class="draw-button" onclick="updateSimilarity(id)">' + (this.preserveSimilarity? "Lock": "Unlock") + '</button>';
