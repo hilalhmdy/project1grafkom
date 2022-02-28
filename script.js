@@ -283,7 +283,7 @@ var importFile = function() {
       arrObjects = JSON.parse(e.target.result);
       // console.log(data)
       // arrObjects = data
-      renderAll()
+      render()
   }
   
   reader.readAsText(file);

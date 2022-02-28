@@ -223,10 +223,17 @@ class Model {
 class Line extends Model {
     constructor(id){
         super(id);
+        this.vertices.push(new Point([0.01, 0], [0,0,0,1], 0));
+        this.vertices.push(new Point([0, 0.01], [0,0,0,1], 1));
+        this.vertices.push(new Point([-0.01,0], [0,0,0,1], 2));
+        this.vertices.push(new Point([0,-0.01], [0,0,0,1], 3));
         this.type = "Line";
+        this.type = "Nameless Line";
+
     }
     calculateLength = () => {
         euclideanDistance(this.vertices[0].coor, this.vertices[1].coor);
+        return inner;
     }
 }
 
