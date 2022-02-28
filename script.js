@@ -24,7 +24,7 @@ dummy.addVertex([0, -0.5], [0.5, 0, 1, 1], 3);
 
 //States
 const objects = [dummy];
-const chosenID = [-1, -1]; //Yang akan ditampilkan di rightbar properties
+let chosenID = [-1, -1]; //Yang akan ditampilkan di rightbar properties
 let toChooseID = [-1, -1];
 let objectIdx = -1;
 let verticeIdx = -1;
