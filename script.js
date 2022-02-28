@@ -1,5 +1,3 @@
-console.log(norm((5 * Math.atan2(-1, -1)) % (2 * Math.PI)));
-
 const vSource = `
   attribute vec4 vPosition;
   attribute vec4 vColor;
