@@ -92,7 +92,7 @@ const mouseMoveListener = (e) => {
     obj.vertices[vLength - 3].coor = [x, y0];
     obj.vertices[vLength - 2].coor = [x, y];
     obj.vertices[vLength - 1].coor = [x0, y];
-  } else if (drawMethod == 'Polygon') {
+  } else {
     obj.moveVertex(obj.vertices.length - 1, [x, y]);
   }
 };
@@ -124,7 +124,7 @@ canvas.addEventListener('mouseup', (e) => {
   } else if (drawMethod == 'Rectangle2') {
     drawMethod = '';
     objects[objects.length - 1].calculateCenter();
-  } else if (drawMethod == 'Polygon') {
+  } else {
     objects[objects.length - 1].addVertex([x, y], [0, 0, 0, 1]);
   }
   refreshObjectsList();
@@ -180,6 +180,11 @@ const drawButton = (id) => {
     } else if (id == 'Polygon') {
       objects.push(new Polygon(objects.length));
       document.getElementById('Polygon').innerHTML = 'Save';
+    } else if (id == 'Polygon Strips') {
+      let p = new Polygon(objects.length);
+      p.isFan = false;
+      objects.push(p);
+      document.getElementById('Polygon Strips').innerHTML = 'Save';
     }
   } else if (drawMethod == '2') {
   } else {
@@ -189,10 +194,16 @@ const drawButton = (id) => {
       let obj = objects[objects.length - 1];
       obj.deleteVertex(obj.vertices.length - 1);
       document.getElementById('Polygon').innerHTML = 'Polygon';
+    } else if(drawMethod == 'Polygon Strips'){
+      //End polygon
+      let obj = objects[objects.length - 1];
+      obj.deleteVertex(obj.vertices.length - 1);
+      document.getElementById('Polygon Strips').innerHTML = 'Polygon Strips';
     } else {
       //Untuk menghindari komplikasi hapus obj terakhir
       objects.splice(objects.length, 1);
     }
+
     drawMethod = '';
   }
   refreshObjectsList();
@@ -252,6 +263,11 @@ const updateColor = (value, includetag = false) => {
 const updateSimilarity = () => {
   let obj = objects[chosenID[0]];
   obj.preserveSimilarity = !obj.preserveSimilarity;
+  refreshChosenInfo();
+};
+const updateDrawMethod = () => {
+  let obj = objects[chosenID[0]];
+  obj.isFan = !obj.isFan;
   refreshChosenInfo();
 };
 

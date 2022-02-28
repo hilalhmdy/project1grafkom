@@ -97,6 +97,7 @@ class Model {
         this.name = "Nameless Model";
         this.center = new Point([0,0], [0,0,0,1]) //Titik berat
         this.preserveSimilarity = true;
+        this.isFan = true;
         this.id = id;
     }
     copy = (obj) => {
@@ -109,6 +110,7 @@ class Model {
         this.name = obj.name;
         this.center.copy(obj.center);
         this.preserveSimilarity = obj.preserveSimilarity;
+        this.isFan = obj.isFan;
         this.id = obj.id;
     }
 
@@ -219,7 +221,7 @@ class Model {
         gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
         gl.enableVertexAttribArray( vColor );
 
-        gl.drawArrays( gl.TRIANGLE_FAN, 0, vertices.length);
+        gl.drawArrays( (this.isFan? gl.TRIANGLE_FAN : gl.TRIANGLE_STRIP), 0, vertices.length);
     }
     
     leftDisplay = () => {
@@ -258,6 +260,8 @@ class Model {
         inner += "</div><div class='horizontalbox'>";
         inner += "<div>Similarity: </div>"
         inner += '<button class="draw-button" onclick="updateSimilarity(id)">' + (this.preserveSimilarity? "Lock": "Unlock") + '</button>';
+        inner += "<div>Draw Method: </div>"
+        inner += '<button class="draw-button" onclick="updateDrawMethod(id)">' + (this.isFan? "Fan": "Strips") + '</button>';
         inner += "</div>";
         return inner;
     }
