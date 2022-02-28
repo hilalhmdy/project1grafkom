@@ -85,6 +85,12 @@ const mouseMoveListener = (e) => {
     obj.moveVertex(0, [x, y]);
   } else if (drawMethod == 'Rectangle') {
   } else if (drawMethod == 'Rectangle2') {
+    const [x0, y0] = obj.vertices[0].coor;
+    const vLength = obj.vertices.length;
+
+    obj.vertices[vLength - 3].coor = [x, y0];
+    obj.vertices[vLength - 2].coor = [x, y];
+    obj.vertices[vLength - 1].coor = [x0, y];
   } else if (drawMethod == 'Polygon') {
     obj.moveVertex(obj.vertices.length - 1, [x, y]);
   }
@@ -111,6 +117,7 @@ canvas.addEventListener('mouseup', (e) => {
     drawMethod = '';
   } else if (drawMethod == 'Rectangle') {
     drawMethod = 'Rectangle2';
+    objects[objects.length - 1].vertices[0].coor = [x, y];
   } else if (drawMethod == 'Rectangle2') {
     drawMethod = '';
   } else if (drawMethod == 'Polygon') {

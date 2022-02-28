@@ -261,7 +261,16 @@ class Square extends Model {
 class Rectangle extends Model {
     constructor(id){
         super(id);
+        this.vertices.push(new Point([0,0], [0,0,0,1], 0))
+        this.vertices.push(new Point([0,0], [0,0,0,1], 1))
+        this.vertices.push(new Point([0,0], [0,0,0,1], 2))
+        this.vertices.push(new Point([0,0], [0,0,0,1], 3))
         this.type = "Rectangle";
+        this.name = "Nameless Rectangle";
+    }
+    
+    uniqueDisplay = () => {
+        return "";
     }
 }
 
