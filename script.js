@@ -76,9 +76,9 @@ const mouseMoveListener = (e) => {
     }
     refreshChosenInfo();
   } else if (drawMethod == 'Line') {
-    obj.addVertex([x, y], [0, 0, 0, 1], 0);
+    obj.moveCenter([x, y]);
   } else if (drawMethod == 'Line2') {
-    obj.addVertex([x, y], [0, 0, 0, 1], 1);
+    obj.addVertex([x, y], [0, 0, 0, 1]);
   } else if (drawMethod == 'Square') {
     obj.moveCenter([x, y]);
   } else if (drawMethod == 'Square2') {
