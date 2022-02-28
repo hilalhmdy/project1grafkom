@@ -277,7 +277,7 @@ class Square extends Model {
     let inner = "<div class='horizontalbox'>"
     inner += "</div><div class='horizontalbox'>";
     inner += "<strong>Sisi: </strong><div id='s-value'>" + s + "</div>";
-    inner += "<input type='range' min='-1' max='1' step=0.001 value='" + s + "' onInput='updateSisi(this.value)'>";
+    inner += "<input id='s-slide' type='range' min='0' max='1' step=0.001 value='" + s + "' onInput='updateSisi(this.value)'>";
     inner += "</div>"
     return inner;
   }

@@ -280,7 +280,16 @@ const updateSisi = (value) => {
   const obj = objects[chosenID[0]];
   const s = euclideanDistance(obj.vertices[0].coor, obj.vertices[1].coor);
   const mul = parseFloat(value) / s;
-  document.getElementById('s-value').innerHTML = s.toFixed(3);
+
+  const sVal = document.getElementById('s-value');
+  const sSlide = document.getElementById('s-slide');
+
+  sVal.innerHTML = sSlide.value;
+
+  sSlide.addEventListener('mouseup', (e) => {
+    refreshChosenInfo();
+  });
+
   obj.dilate(mul);
 };
 
